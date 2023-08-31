@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/react-plotly-rlayers/static/css/main.20478a65.css",
-    "main.js": "/react-plotly-rlayers/static/js/main.88f1d1e2.js",
+    "main.js": "/react-plotly-rlayers/static/js/main.bd417caf.js",
     "static/js/787.b4f68670.chunk.js": "/react-plotly-rlayers/static/js/787.b4f68670.chunk.js",
     "index.html": "/react-plotly-rlayers/index.html",
     "main.20478a65.css.map": "/react-plotly-rlayers/static/css/main.20478a65.css.map",
-    "main.88f1d1e2.js.map": "/react-plotly-rlayers/static/js/main.88f1d1e2.js.map",
+    "main.bd417caf.js.map": "/react-plotly-rlayers/static/js/main.bd417caf.js.map",
     "787.b4f68670.chunk.js.map": "/react-plotly-rlayers/static/js/787.b4f68670.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.20478a65.css",
-    "static/js/main.88f1d1e2.js"
+    "static/js/main.bd417caf.js"
   ]
 }
