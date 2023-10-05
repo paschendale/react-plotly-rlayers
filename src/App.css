@@ -1,6 +1,6 @@
 .container {
   width: 100vw;
-  height: 98vh;
+  height: 95vh;
   display: flex;
   flex-direction: row;
 }
@@ -19,4 +19,12 @@
 .plot {
   width: 100%;
   height: 100%;
+}
+
+.github {
+  width: 100vw;
+  height: 5vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
