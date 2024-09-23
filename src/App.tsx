@@ -15,15 +15,19 @@ function App() {
   const [ plot, setPlot ] = useState<{plotData: any, plot: Data[]} | null>();
   const [ point,setPoint ] = useState<number[] | null>(null);
   const [ line, setLine ] = useState<number[][] | null>(null)
-  const [ view, setView ] = useState<RView>({ center: [-4904902.249118038,-2247490.9587757173], zoom: 15 });
+  const [view, setView] = useState<RView>({
+    center: [-4904902.249118038, -2247490.9587757173],
+    zoom: 15,
+  });
+  const [loading, setLoading] = useState(false);
 
-  const plotComp = useRef<any>()
+  const plotComp = useRef<any>();
 
   function generateSeriesX(end: number, resolution: number): number[] {
     const array: number[] = [];
 
     for (let i = 0; i <= end; i += resolution) {
-        array.push(i);
+      array.push(i);
     }
 
     return array;
@@ -41,84 +45,89 @@ function App() {
     setPlot({
       plotData: data,
       plot: [
-      {
-        x: x_1,
-        y: y_1,
-        name: 'MDS de mentira',
-        type: 'scatter',
-        fill: 'tozeroy',
-        hovertemplate: hovertemplate,
-        hoverinfo: 'x+y',
-      },
-      {
-        x: x_2,
-        y: y_2,
-        name: 'MDT',
-        type: 'scatter',
-        fill: 'tozeroy',
-        hovertemplate: hovertemplate,
-        hoverinfo: 'x+y',
-      }
-    ]});
+        {
+          x: x_1,
+          y: y_1,
+          name: "MDS de mentira",
+          type: "scatter",
+          fill: "tozeroy",
+          hovertemplate: hovertemplate,
+          hoverinfo: "x+y",
+        },
+        {
+          x: x_2,
+          y: y_2,
+          name: "MDT",
+          type: "scatter",
+          fill: "tozeroy",
+          hovertemplate: hovertemplate,
+          hoverinfo: "x+y",
+        },
+      ],
+    });
   }
 
   function handleHover(e: Readonly<PlotHoverEvent>) {
     if (e.points.length > 0) {
-
-      setPoint(plot?.plotData.elevations[e.points[0].pointIndex].point.coordinates)
+      setPoint(
+        plot?.plotData.elevations[e.points[0].pointIndex].point.coordinates
+      );
     } else {
-
-      setPoint(null)
+      setPoint(null);
     }
   }
 
   async function getPerfil(noRetry?: number): Promise<any> {
-
     try {
-      
-      return (await axios.post(
-        'http://localhost:3000/perfil',
-        {
-          "line": line,
-          "mdt": "rbn_mde"
-        },
-        {
-          headers: {
-            'Authorization': 'Bearer d8595960-2910-4cc0-99a7-4ae7920b714b'
+      return (
+        await axios.post(
+          "https://perfil.apps.geo360.topocart.dev.br/perfil",
+          {
+            line: line,
+            mdt: "ribeirao_neves_mdt",
+          },
+          {
+            headers: {
+              Authorization: "Bearer 8e43e938c44b38f147860a5ea7a3d966",
+            },
           }
-        }
-        )).data
+        )
+      ).data;
     } catch (error) {
-      
-      noRetry = noRetry ? noRetry + 1 : 1
-      console.log(error)
+      noRetry = noRetry ? noRetry + 1 : 1;
+      console.log(error);
       if (noRetry < 10) {
-
-        return await getPerfil(noRetry)
+        return await getPerfil(noRetry);
       } else {
-       
-        console.log(':(')
+        console.log(":(");
       }
     }
   }
 
   useEffect(() => {
-
-    if(line) {
-
+    if (line) {
+      setLoading(true);
       getPerfil().then((data) => {
-        makePlot(data)
-      })
+        makePlot(data);
+      }).finally(() => {
+        setLoading(false);
+      });
     }
-  },[line])
+  }, [line]);
 
   return (
     <>
-      <div className='container'>
+      <div className="container">
+        {loading && (
+          <div className="spinner-container" role="status" aria-live="polite">
+            <div className="spinner"></div>
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        )}
         <div className="inner-container">
-          <RMap 
-            width={"100%"} 
-            height={"100%"} 
+          <RMap
+            width={"100%"}
+            height={"100%"}
             initial={view}
             view={[view, setView]}
           >
@@ -129,39 +138,41 @@ function App() {
               url="https://tiles.geo360.com.br/dados/ribeiraodasneves/mdt/{z}/{x}/{y}.png"
             />
 
-            {line && <RLayerVector
-            features={new GeoJSON({
-              featureProjection: "EPSG:3857",
-            }).readFeatures({
-              "type": "Feature",
-              "geometry": {
-                "type": "LineString",
-                "coordinates": line
-              }
-            })}
-            >
-              <RStyle.RStyle>
-                <RStyle.RStroke color="#ff0000" width={5} />
-                <RStyle.RFill color="transparent" />
-              </RStyle.RStyle>
-            </RLayerVector>}
-
-            {point && <RLayerVector> 
-              <RFeature
-                geometry={new Point(fromLonLat(point))}
+            {line && (
+              <RLayerVector
+                features={new GeoJSON({
+                  featureProjection: "EPSG:3857",
+                }).readFeatures({
+                  type: "Feature",
+                  geometry: {
+                    type: "LineString",
+                    coordinates: line,
+                  },
+                })}
               >
                 <RStyle.RStyle>
-                  <RStyle.RCircle radius={10}>
-                    <RStyle.RFill color="red" />
-                  </RStyle.RCircle>
+                  <RStyle.RStroke color="#ff0000" width={5} />
+                  <RStyle.RFill color="transparent" />
                 </RStyle.RStyle>
-              </RFeature>
-            </RLayerVector>}
+              </RLayerVector>
+            )}
 
-            <RLayerVector 
+            {point && (
+              <RLayerVector>
+                <RFeature geometry={new Point(fromLonLat(point))}>
+                  <RStyle.RStyle>
+                    <RStyle.RCircle radius={10}>
+                      <RStyle.RFill color="red" />
+                    </RStyle.RCircle>
+                  </RStyle.RStyle>
+                </RFeature>
+              </RLayerVector>
+            )}
+
+            <RLayerVector
               onAddFeature={(e: VectorSourceEvent<Geometry>) => {
-                var line: any = e.feature?.getGeometry()
-                setLine(line.getCoordinates())
+                var line: any = e.feature?.getGeometry();
+                setLine(line.getCoordinates());
               }}
             >
               <RStyle.RStyle>
@@ -169,9 +180,7 @@ function App() {
                 <RStyle.RFill color="rgba(0, 0, 0, 0.75)" />
               </RStyle.RStyle>
 
-              <RInteraction.RDraw
-                type={"LineString"}
-              />
+              <RInteraction.RDraw type={"LineString"} />
             </RLayerVector>
           </RMap>
         </div>
@@ -181,19 +190,38 @@ function App() {
             data={plot ? plot.plot : []}
             onHover={handleHover}
             onUnhover={() => setPoint([])}
-            className='plot'
-            layout={ {
-              title: 'Perfil',
+            className="plot"
+            layout={{
+              title: "Perfil",
               autosize: true,
               yaxis: {
-                  range: plot?.plotData ? [Math.min(...plot?.plotData.elevations.map((e: any) => e.elevation as number))-30,Math.max(...plot?.plotData.elevations.map((e: any) => e.elevation as number))+10] : []
-                }
-              } }
-            />
+                range: plot?.plotData
+                  ? [
+                      Math.min(
+                        ...plot?.plotData.elevations.map(
+                          (e: any) => e.elevation as number
+                        )
+                      ) - 30,
+                      Math.max(
+                        ...plot?.plotData.elevations.map(
+                          (e: any) => e.elevation as number
+                        )
+                      ) + 10,
+                    ]
+                  : [],
+              },
+            }}
+          />
         </div>
       </div>
       <div className="github">
-        <a href="https://github.com/paschendale/react-plotly-rlayers" target='_blank' rel="noreferrer">paschendale/react-plotly-rlayers on Github</a> 
+        <a
+          href="https://github.com/paschendale/react-plotly-rlayers"
+          target="_blank"
+          rel="noreferrer"
+        >
+          paschendale/react-plotly-rlayers on Github
+        </a>
       </div>
     </>
   );
