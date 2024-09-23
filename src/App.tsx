@@ -131,11 +131,11 @@ function App() {
             initial={view}
             view={[view, setView]}
           >
-            <ROSM />
+            {/* <ROSM /> */}
 
             <RLayerTile
               properties={{ label: "MDT de RbN" }}
-              url="https://tiles.geo360.com.br/dados/ribeiraodasneves/mdt/{z}/{x}/{y}.png"
+              url="https://apps.geo360.com.br/dados/ribeiraodasneves/mdt/{z}/{x}/{y}.png"
             />
 
             {line && (
@@ -215,6 +215,8 @@ function App() {
         </div>
       </div>
       <div className="github">
+        Draw a line by clicking on the map then double clicking to get the
+        elevation profile of the line
         <a
           href="https://github.com/paschendale/react-plotly-rlayers"
           target="_blank"
